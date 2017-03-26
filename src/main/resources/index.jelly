@@ -1,0 +1,4 @@
+<?jelly escape-by-default='true'?>
+<div>
+Creates a component manifest based on components and uploads it to nexus.
+</div>
