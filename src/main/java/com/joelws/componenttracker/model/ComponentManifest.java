@@ -15,25 +15,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import org.kohsuke.stapler.DataBoundConstructor;
-
 import java.util.List;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 public class ComponentManifest extends Component {
 
-    private List<Component> artifacts;
+  private List<Component> artifacts;
 
-    @DataBoundConstructor
-    public ComponentManifest(String name, String version, List<Component> artifacts) {
-        super(name, version);
-        this.artifacts = artifacts;
-    }
+  @DataBoundConstructor
+  public ComponentManifest(String name, String version, List<Component> artifacts) {
+    super(name, version);
+    this.artifacts = artifacts;
+  }
 
-    public List<Component> getArtifacts() {
-        return artifacts;
-    }
+  public List<Component> getArtifacts() {
+    return artifacts;
+  }
 
-    public void setArtifacts(List<Component> artifacts) {
-        this.artifacts = artifacts;
-    }
+  public void setArtifacts(List<Component> artifacts) {
+    this.artifacts = artifacts;
+  }
 }

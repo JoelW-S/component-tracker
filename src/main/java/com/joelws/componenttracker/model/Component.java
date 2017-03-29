@@ -15,55 +15,54 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
-
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.util.FormValidation;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 
 public class Component extends AbstractDescribableImpl<Component> {
 
-    private String name;
+  private String name;
 
-    private String version;
+  private String version;
 
-    @DataBoundConstructor
-    public Component(String name, String version) {
-        this.name = name;
-        this.version = version;
+  @DataBoundConstructor
+  public Component(String name, String version) {
+    this.name = name;
+    this.version = version;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getVersion() {
+    return version;
+  }
+
+  public void setVersion(String version) {
+    this.version = version;
+  }
+
+  @Extension
+  public static class DescriptorImpl extends Descriptor<Component> {
+
+    public FormValidation doCheckName(@QueryParameter String value) {
+      if (value.isEmpty()) {
+        return FormValidation.error("Can't be empty!");
+      }
+      return FormValidation.ok();
     }
 
-    public String getName() {
-        return name;
+    @Override
+    public String getDisplayName() {
+      return "";
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    @Extension
-    public static class DescriptorImpl extends Descriptor<Component> {
-
-        public FormValidation doCheckName(@QueryParameter String value) {
-            if (value.isEmpty()) {
-                return FormValidation.error("Can't be empty!");
-            }
-            return FormValidation.ok();
-        }
-
-        @Override
-        public String getDisplayName() {
-            return "";
-        }
-    }
+  }
 }
