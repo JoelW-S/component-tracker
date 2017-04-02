@@ -15,9 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import com.google.gson.Gson;
 import com.joelws.componenttracker.model.Component;
-import com.joelws.componenttracker.model.ComponentManifest;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Launcher;
@@ -32,31 +30,11 @@ import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
-import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
-import org.eclipse.aether.DefaultRepositorySystemSession;
-import org.eclipse.aether.RepositorySystem;
-import org.eclipse.aether.RepositorySystemSession;
-import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.artifact.DefaultArtifact;
-import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory;
-import org.eclipse.aether.deployment.DeployRequest;
 import org.eclipse.aether.deployment.DeploymentException;
-import org.eclipse.aether.impl.DefaultServiceLocator;
-import org.eclipse.aether.repository.Authentication;
-import org.eclipse.aether.repository.LocalRepository;
-import org.eclipse.aether.repository.RemoteRepository;
-import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
-import org.eclipse.aether.spi.connector.transport.TransporterFactory;
-import org.eclipse.aether.transport.file.FileTransporterFactory;
-import org.eclipse.aether.transport.http.HttpTransporterFactory;
-import org.eclipse.aether.util.repository.AuthenticationBuilder;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 import org.slf4j.Logger;
@@ -102,10 +80,10 @@ public class ComponentTrackerPublisher extends Notifier {
     if (componentVersion != null) {
       try {
 
-        archiveManifest(manifestFileLocation,
-            ComponentTrackerEndpoint
-                .getInstance()
-                .getLatestManifest());
+        MavenTransport.getInstance().archiveManifest(manifestFileLocation,
+            getDescriptor().getNexusUrl(),
+            getDescriptor().getNexusUser(),
+            getDescriptor().getNexusPassword());
 
         ComponentTrackerEndpoint
             .getInstance()
@@ -126,80 +104,8 @@ public class ComponentTrackerPublisher extends Notifier {
     }
 
     return true;
-
   }
 
-  private synchronized void archiveManifest(final String manifestFileLocation,
-      final ComponentManifest componentManifest)
-      throws DeploymentException, IOException {
-
-    LOGGER.debug("Archiving component Manifest: " + componentManifest.getName());
-
-    final String url = getDescriptor().getNexusUrl();
-    final String user = getDescriptor().getNexusUser();
-    final Secret password = getDescriptor().getNexusPassword();
-
-    RepositorySystem system = newRepositorySystem();
-    RepositorySystemSession session = newSession(system);
-
-    Gson gson = new Gson();
-
-    Artifact artifact = new DefaultArtifact(
-        "net.atos.hts",
-        componentManifest.getName(),
-        "",
-        "json",
-        componentManifest.getVersion());
-
-    final String manifestAsJson = gson.toJson(componentManifest);
-
-    LOGGER.debug("Writing manifest file temporarily to filesystem...");
-
-    LOGGER.info(manifestFileLocation);
-    BufferedWriter writer = new BufferedWriter(new FileWriter(manifestFileLocation));
-    writer.write(manifestAsJson);
-    writer.close();
-
-    final File temporaryManifestFile = new File(manifestFileLocation);
-
-    artifact = artifact.setFile(temporaryManifestFile);
-
-    Authentication authentication = new AuthenticationBuilder()
-        .addUsername(user)
-        .addPassword(Secret.toString(password))
-        .build();
-
-    RemoteRepository releaseRepo = new RemoteRepository.Builder(
-        "releases",
-        "default",
-        url + "/" + "content/repositories/releases")
-        .setAuthentication(authentication)
-        .build();
-
-    DeployRequest deployRequest = new DeployRequest();
-    deployRequest.addArtifact(artifact);
-    deployRequest.setRepository(releaseRepo);
-
-    LOGGER.debug("Deploying to nexus: " + url);
-    system.deploy(session, deployRequest);
-  }
-
-  private RepositorySystem newRepositorySystem() {
-    DefaultServiceLocator locator = MavenRepositorySystemUtils.newServiceLocator();
-    locator.addService(RepositoryConnectorFactory.class, BasicRepositoryConnectorFactory.class);
-    locator.addService(TransporterFactory.class, FileTransporterFactory.class);
-    locator.addService(TransporterFactory.class, HttpTransporterFactory.class);
-    return locator.getService(RepositorySystem.class);
-  }
-
-  private RepositorySystemSession newSession(RepositorySystem system) {
-    DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
-    LocalRepository localRepo = new LocalRepository(
-        new File(System.getProperty("user.home"),
-            ".m2/repository"));
-    session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
-    return session;
-  }
 
   @Override
   public BuildStepMonitor getRequiredMonitorService() {
