@@ -35,4 +35,28 @@ public class ComponentManifest extends Component {
   public void setArtifacts(List<Component> artifacts) {
     this.artifacts = artifacts;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+
+    ComponentManifest that = (ComponentManifest) o;
+
+    return artifacts != null ? artifacts.equals(that.artifacts) : that.artifacts == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + (artifacts != null ? artifacts.hashCode() : 0);
+    return result;
+  }
 }

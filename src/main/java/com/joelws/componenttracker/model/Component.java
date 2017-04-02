@@ -50,6 +50,30 @@ public class Component extends AbstractDescribableImpl<Component> {
     this.version = version;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    Component component = (Component) o;
+
+    if (name != null ? !name.equals(component.name) : component.name != null) {
+      return false;
+    }
+    return version != null ? version.equals(component.version) : component.version == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = name != null ? name.hashCode() : 0;
+    result = 31 * result + (version != null ? version.hashCode() : 0);
+    return result;
+  }
+
   @Extension
   public static class DescriptorImpl extends Descriptor<Component> {
 

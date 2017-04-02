@@ -100,15 +100,15 @@ public class ComponentTrackerEndpoint implements RootAction, Saveable {
       final Matcher versionMatcher = VERSION_PATTERN.matcher(latestManifest.getVersion());
 
       if (versionMatcher.matches()) {
-        final int incrementalNumber = Integer.parseInt(versionMatcher.group(3));
+        final long incrementalNumber = Long.parseLong(versionMatcher.group(3));
         latestManifest.setVersion(String.format(
             "%s.%s.%s",
             versionMatcher.group(1),
             versionMatcher.group(2),
             incrementalNumber + 1));
+        componentToBeUpdated.setVersion(version);
       }
 
-      componentToBeUpdated.setVersion(version);
     }
     setLatestManifest(latestManifest);
   }
