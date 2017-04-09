@@ -100,7 +100,8 @@ public class MavenTransport {
     RemoteRepository releaseRepo = new RemoteRepository.Builder(
         "releases",
         "default",
-        nexusUrl + "/" + "content/repositories/releases")
+        nexusUrl + File.separator + "content" + File.separator + "repositories" + File.separator
+            + "releases")
         .setAuthentication(authentication)
         .build();
 
@@ -125,7 +126,7 @@ public class MavenTransport {
     DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
     LocalRepository localRepo = new LocalRepository(
         new File(System.getProperty("user.home"),
-            ".m2/repository"));
+            ".m2" + File.separator + "repository"));
     session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
     return session;
   }

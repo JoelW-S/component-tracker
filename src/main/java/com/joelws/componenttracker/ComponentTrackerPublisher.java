@@ -30,6 +30,7 @@ import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import jenkins.model.Jenkins;
@@ -69,13 +70,13 @@ public class ComponentTrackerPublisher extends Notifier {
 
     final String componentVersion = envVars.get(component);
 
-    String manifestFileLocation = "/tmp/";
+    String manifestFileLocation = File.separator + "tmp";
 
     if (!launcher.isUnix()) {
-      manifestFileLocation = System.getenv("TEMP") + "\\";
+      manifestFileLocation = System.getenv("TEMP");
     }
 
-    manifestFileLocation += "hts-component-manifest.json";
+    manifestFileLocation += File.separator + "hts-component-manifest.json";
 
     if (componentVersion != null) {
       try {
